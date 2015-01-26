@@ -3,20 +3,53 @@ import java.text.ParseException;
 
 public class Main {
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException, ParseException {
-		// read instance
-		//SDInstance sdInstance = new SDInstance("./SDdata/DataSet1/RandomExample13.txt");
-		SDValidation sdValidation = new SDValidation("./SDdata/DataSet1/RandomExample13.txt");
+		if (args.length != 2){
+			System.err.println("Usage: java GraduateProject arg0 arg1");
+			System.exit(0);
+		}
+
+		if (args[0].equals("0")){
+			System.out.println("Cplex Solver - Shift Design" + " FileName: " + args[1]);
+			
+			// read instance 
+			SDInstance sdInstance = new SDInstance(args[1], true);
+			
+			// solve instance with Cplex
+			SDCplex sdCplex = new SDCplex();
+			sdCplex.model(sdInstance);
+		}
 		
-		// solve instance with Cplex
-		//SDCplex sdCplex = new SDCplex();
-		//sdCplex.model(sdInstance);
-		// solve instance with Gurobi
-		//SDGurobi sdGurobi = new SDGurobi();
-		//sdGurobi.model(sdInstance);
-		//BSInstance bsInstance = new BSInstance("1-1.txt");
-		//BSCplex bsCplex = new BSCplex();
-		//bsCplex.model(bsInstance);
+		if (args[0].equals("1")){			
+			System.out.println("Gurobi Solver - Shift Design" + " FileName: " + args[1]);
+
+			// read instance
+			SDInstance sdInstance = new SDInstance(args[1], false);
+			
+			// solve instance with Gurobi
+			SDGurobi sdGurobi = new SDGurobi();
+			sdGurobi.model(sdInstance);
+		}
+		
+		if (args[0].equals("2")){
+			System.out.println("Cplex Solver - Break Scheduling" + " FileName: " + args[1]);
+			BSInstance bsInstance = new BSInstance(args[1]);
+			
+			BSCplex bsCplex = new BSCplex();
+			bsCplex.model(bsInstance);
+		}
+		
+		if (args[0].equals("3")){
+			System.out.println("Validation - Shift Design" + " FileName: " + args[1]);
+
+			SDValidation sdCValidation = new SDValidation(args[1], true);
+			SDValidation sdGValidation = new SDValidation(args[1], false);
+
+		}
+
+
+
 		
 
 		

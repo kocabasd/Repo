@@ -4,6 +4,8 @@ import java.util.*;
 
 public class SDInstance {
     private Scanner s;
+	private BufferedWriter w;
+
     private Integer slotLength, m, n, daysPerCycle, nrOfShiftTemplates, maxEmployeeNeeded, minStart, maxStart, minLength, maxLength;
 	double dutiesPerWeekLowerLimit, dutiesPerWeekUpperLimit;
     private Boolean flagCyclical;    
@@ -14,18 +16,24 @@ public class SDInstance {
 	Integer[] weight = new Integer[3];
 
     
-	public SDInstance(String fileLocation) throws IOException, ParseException{	
-		OpenFile(fileLocation);
+	public SDInstance(String fileLocation, Boolean CplexorGurobi) throws IOException, ParseException{	
+		OpenFile(fileLocation, CplexorGurobi);
 		ReadFile();
 		CloseFile();
 	}
 
-	protected void OpenFile(String fileName){
+	protected void OpenFile(String fileName, Boolean CplexorGurobi){
 		try {
-			s = new Scanner(new File(fileName)); 
+			FileWriter fstream;
+			s = new Scanner(new File("./SDdata/" + fileName  + ".txt")); 
+			if(CplexorGurobi)
+				fstream = new FileWriter("./Result/SDCSolution" + fileName);
+			else
+				fstream = new FileWriter("./Result/SDGSolution" + fileName);
+			w = new BufferedWriter(fstream);
 		}
 		catch (Exception e){
-			System.out.println("File could not find");
+			System.err.println("File could not find" + e);
 		}
 	}
 
@@ -155,10 +163,19 @@ public class SDInstance {
 		}
 	}
 	
+	public void WriteFile(String line) throws IOException, ParseException{	
+		w.write(line);
+	}
+	
 	public void CloseFile() throws IOException{
 		s.close();		
 	}
-
+	
+	public void CloseWriteFile() throws IOException{
+		w.flush();
+		w.close();
+	}
+	
 	public Integer getSlotLength() {
 		return slotLength;
 	}

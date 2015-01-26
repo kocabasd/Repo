@@ -11,7 +11,7 @@ public class BSCplex extends BSConstant{
 	IloNumVar[][][] beforeLunchBreaks, afterLunchBreaks;
 	
 	public void model(BSInstance instance) throws IOException, ParseException{
-		// Initialization of n, m, w, x and a variables
+		// Initialization of variables
 		modelConstraints(instance);
 		// Initialization of Cplex solver
 		initCplex();
@@ -92,7 +92,6 @@ public class BSCplex extends BSConstant{
 			cplex.addMinimize(obj);
 
 			// Hard Constraints
-			System.out.println("Hard Constraints");
 			IloLinearNumExpr[][] expr1 = new IloLinearNumExpr[sdd][maxBreakTime/2];
 			IloLinearNumExpr[][] expr2 = new IloLinearNumExpr[sdd][maxBreakTime/2];
 
@@ -151,7 +150,6 @@ public class BSCplex extends BSConstant{
 
 
 			// Soft Constraints
-			System.out.println("Soft Constraints");			
 			IloLinearNumExpr[] expr3 = new IloLinearNumExpr[n];
 			IloLinearNumExpr[] expr4 = new IloLinearNumExpr[n];
 			
@@ -332,29 +330,6 @@ public class BSCplex extends BSConstant{
 				instance.WriteFile("NUMBER OF SHIFTS            " + (nrOfShift +1) +"\n"); 
 				instance.WriteFile("TOTAL                       " + ((nrOfShift +1) * 60 +(int) (weight[5] * Cx[0]) + (int)(weight[6] * Cx[1]))+"\n"); 
 				instance.CloseWriteFile();
-				/*
-				for ( int i = 0; i < (shiftSDD.get(0).getBreakTime() - shiftSDD.get(0).getLunchBreakTime()) / 2 + shiftSDD.get(0).getNrOfLunchBreak(); i++){
-					double sP = cplex.getValue(startTime[0][i]); 
-					System.out.println("startTime["+i+"]" + sP); 
-				
-				}
-				
-				for ( int i = 0; i < (shiftSDD.get(0).getBreakTime() - shiftSDD.get(0).getLunchBreakTime()) / 2 + shiftSDD.get(0).getNrOfLunchBreak() + 1; i++){
-					double wP = cplex.getValue(workPeriod[0][i]); 
-					System.out.println("workPeriod["+i+"]" + wP); 
-				
-				}
-				
-				double[] Exx = cplex.getValues(ex); 
-				double[] Shh = cplex.getValues(sh); 
-
-				for ( int i = 0; i < n; i++){
-					if(Exx[i] > 0)
-						System.out.println("ex["+i+"]" + Exx[i]); 				
-					if(Shh[i] > 0)
-						System.out.println("sh["+i+"]" + Shh[i]); 				
-				}
-*/
 			}
 			else
 				System.out.println("cplex.solve() is " + cplex.solve());

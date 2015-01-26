@@ -1,3 +1,6 @@
+import java.io.IOException;
+import java.text.ParseException;
+
 import ilog.cplex.*;
 import ilog.concert.*;
 
@@ -6,7 +9,7 @@ public class SDCplex extends SDConstant{
 	IloNumVar[] b, l, ex, sh, F;
 	IloNumVar[][] w;
 	
-	public void model(SDInstance instance){
+	public void model(SDInstance instance) throws IOException, ParseException{
 		// Initialization of n, m, w, x and a variables
 		modelConstraints(instance);
 		// Initialization of Cplex solver
@@ -120,7 +123,7 @@ public class SDCplex extends SDConstant{
 		}
 	}
 	
-	public void solve(){
+	public void solve() throws IOException, ParseException{
 		try{	
 
 			if (cplex.solve()){				
@@ -139,6 +142,8 @@ public class SDCplex extends SDConstant{
 				// The value of F and weight
 				for (int j = 0; j < 3; ++j) {
 					System.out.println("F_" + j + " = " + Obj[j] + "  W_" + j + " = " + weight[j]);
+					instance.WriteFile("F_" + j + " = " + Obj[j] + "  W_" + j + " = " + weight[j] +" \n");
+
 				}
 				System.out.println();
 
@@ -148,7 +153,8 @@ public class SDCplex extends SDConstant{
 				System.out.println();
 				System.out.println("#Optimal Solution:");
 				System.out.println("#Shift Start Length Duties:");
-				
+				instance.WriteFile("#Shift Start Length Duties: \n");
+
 				double[] IsShiftActive = cplex.getValues(b);
 				
 				// The value of
@@ -156,14 +162,22 @@ public class SDCplex extends SDConstant{
 				for (int s =0; s< tempShift.size(); s++){		
 					double[] nrOfAssignedEmployees = cplex.getValues(w[s]);
 					if (IsShiftActive[s]==1){
+						instance.WriteFile("# " + shift + ":  " + tempShift.get(s).getStart() * instance.getSlotLength()/60 + ":" + (tempShift.get(s).getStart() % (60/instance.getSlotLength())) * instance.getSlotLength() +  "    " + tempShift.get(s).getLength() * instance.getSlotLength()  + "       ");
 						System.out.print("# " + shift + ":  " + tempShift.get(s).getStart() * instance.getSlotLength()/60 + ":" + (tempShift.get(s).getStart() % (60/instance.getSlotLength())) * instance.getSlotLength() +  "    " + tempShift.get(s).getLength() * instance.getSlotLength()  + "       ");
-						for (int i = 0; i < 7; ++i) 
+						for (int i = 0; i < 7; ++i) {
+							instance.WriteFile((int)nrOfAssignedEmployees[i] + "  ");
 							System.out.print((int)nrOfAssignedEmployees[i] + "  ");
+						}
+						instance.WriteFile("\n");
 						System.out.println();
 						shift ++;
 					}
 				}
+
+				instance.CloseWriteFile();
 			}
+			else
+				System.out.println("cplex.solve() is " + cplex.solve());
 			cplex.end();
 		}
 		catch(IloException e){

@@ -1,3 +1,6 @@
+import java.io.IOException;
+import java.text.ParseException;
+
 import gurobi.*;
 
 
@@ -7,7 +10,7 @@ public class SDGurobi extends SDConstant {
 	GRBVar [] b, l, ex, sh, F;
 	GRBVar [][] w;
 	
-	public void model(SDInstance instance){
+	public void model(SDInstance instance) throws IOException, ParseException{
 		
 			// Initialization of n, m, w, x and a variables
 			modelConstraints(instance);
@@ -144,7 +147,7 @@ public class SDGurobi extends SDConstant {
 			e.printStackTrace();
 		}
 	}
-	public void solve(){
+	public void solve() throws IOException, ParseException{
 		try{	
 		    model.optimize();	
 		    int status = model.get(GRB.IntAttr.Status);
@@ -164,6 +167,8 @@ public class SDGurobi extends SDConstant {
 				// The value of F and weight
 				for (int j = 0; j < 3; ++j) {
 					System.out.println("F_" + j + " = " + Obj[j] + "  W_" + j + " = " + weight[j]);
+					instance.WriteFile("F_" + j + " = " + Obj[j] + "  W_" + j + " = " + weight[j] +" \n");
+
 				}
 				System.out.println();
 				// The value of objective function
@@ -172,7 +177,8 @@ public class SDGurobi extends SDConstant {
 				System.out.println();
 				System.out.println("#Optimal Solution:");
 				System.out.println("#Shift Start Length Duties:");
-			
+				instance.WriteFile("#Shift Start Length Duties: \n");
+
 				double[] IsShiftActive = model.get(GRB.DoubleAttr.X, b);
 
 				// The value of
@@ -180,14 +186,20 @@ public class SDGurobi extends SDConstant {
 				for (int s =0; s< tempShift.size(); s++){		
 					double[] nrOfAssignedEmployees = model.get(GRB.DoubleAttr.X, w[s]);
 					if (IsShiftActive[s]==1){									
+						instance.WriteFile("# " + shift + ":  " + tempShift.get(s).getStart() * instance.getSlotLength()/60 + ":" + (tempShift.get(s).getStart() % (60/instance.getSlotLength())) * instance.getSlotLength() +  "    " + tempShift.get(s).getLength() * instance.getSlotLength()  + "       ");
 						System.out.print("# " + shift + ":  " + tempShift.get(s).getStart() * instance.getSlotLength()/60 + ":" + (tempShift.get(s).getStart() % (60/instance.getSlotLength())) * instance.getSlotLength() +  "    " + tempShift.get(s).getLength() * instance.getSlotLength()  + "       ");
-						for (int i = 0; i < 7; ++i) 
+						for (int i = 0; i < 7; ++i) {
+							instance.WriteFile((int)nrOfAssignedEmployees[i] + "  ");
 							System.out.print((int)nrOfAssignedEmployees[i] + "  ");
+						}
+						instance.WriteFile("\n");
 						System.out.println();
 						shift ++;
 					}
 				}
+				instance.CloseWriteFile();
 			}
+		    
 		    // Dispose of model and environment
 		    model.dispose();
 		    env.dispose();

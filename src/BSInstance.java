@@ -25,12 +25,12 @@ public class BSInstance {
 	
 	protected void OpenFile(String fileName){
 		try {
-			s = new Scanner(new File("./BSSdata/random" + fileName)); 
-			FileWriter fstream = new FileWriter("SolutionRandom" + fileName);
+			s = new Scanner(new File("./BSdata/" + fileName + ".txt")); 
+			FileWriter fstream = new FileWriter("./Result/BSSolution" + fileName);
 			w = new BufferedWriter(fstream);
 		}
 		catch (Exception e){
-			System.out.println("File could not find");
+			System.err.println("File could not find" + e);
 		}
 	}
 
